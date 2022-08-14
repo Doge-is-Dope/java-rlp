@@ -1,6 +1,7 @@
 package org.tdf.rlp;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -65,6 +66,15 @@ public interface Container<V> {
     static Container fromType(Type type) {
         if (type instanceof Class) {
             return fromClass((Class) type);
+        }
+        if (type instanceof GenericArrayType) {
+            if (((GenericArrayType) type).getGenericComponentType() instanceof Class) {
+                if (((GenericArrayType) type).getGenericComponentType() == byte.class) {
+                    return new Raw(byte[].class);
+                } else if (((GenericArrayType) type).getGenericComponentType() == int.class) {
+                    return new Raw(int[].class);
+                }
+            }
         }
         if (!(type instanceof ParameterizedType))
             throw new RuntimeException("type variable " + type + " is not allowed in rlp decoding");
